@@ -30,6 +30,17 @@ $danger: $red !default;
 $light: $gray-100 !default;
 $dark: $gray-800 !default;
 
+$af-pre: 'af-';
+$white-color: #fff;
+$border-color: #dcdee2;
+$dash-border-color: #f0f0f0;
+$primary-color: #2d8cf0;
+$assist-color: #bae7ff;
+$disable-color: #c5c8ce;
+$text-color: #333;
+$error-color: #e44233;
+$bg-prev-color: #f5f7fa;
+
 $theme-colors: (
   'primary': $primary,
   'secondary': $secondary,
