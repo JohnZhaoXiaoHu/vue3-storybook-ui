@@ -1,9 +1,11 @@
 <template>
   <div class="main">
+    <button @click="selectNode">获取选中节点</button>
     <af-tree
       :source="source"
       :lazyLoad="lazyLoad"
-      :render="renderFunc"
+      show-check-box
+      ref="tree"
     ></af-tree>
   </div>
 </template>
@@ -11,7 +13,7 @@
 <script lang="tsx">
 import { defineComponent, onMounted, ref } from 'vue';
 import AfTree from './index';
-import { RequiredTreeNodeOptions, TreeNodeOptions } from './types';
+import { RequiredTreeNodeOptions, TreeInstace, TreeNodeOptions } from './types';
 export default defineComponent({
   name: 'TreeDemo',
   components: { AfTree },
@@ -75,7 +77,7 @@ export default defineComponent({
           name: nodeKey,
           children: [],
           hasChildren: true,
-          disabled: i % 2 === 0,
+          // disabled: i % 2 === 0,
         };
 
         res.push(TreeNode);
@@ -95,10 +97,20 @@ export default defineComponent({
       return <div style="color:red">{node.name}</div>;
     };
 
+    const tree = ref<TreeInstace>();
+
+    const selectNode = () => {
+      console.log('tree', tree.value);
+      const selectedNode = tree.value!.getSelectNode();
+      console.log('selectednode', selectedNode);
+    };
+
     return {
       source,
       lazyLoad,
       renderFunc,
+      selectNode,
+      tree,
     };
   },
 });

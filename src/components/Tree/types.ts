@@ -15,6 +15,10 @@ interface TreeNodeOptions {
 
 }
 
+export interface TreeInstace {
+  getSelectNode: () => RequiredTreeNodeOptions | undefined
+}
+
 type RequiredTreeNodeOptions = Required<TreeNodeOptions>
 
 
@@ -25,11 +29,19 @@ const TreeProps = () => ({
     type: Array as PropType<TreeNodeOptions[]>,
     required: true
   },
+  showCheckBox: {
+    type: Boolean,
+    default: false
+  },
+  checkStrictly: {
+    type: Boolean,
+    default: false
+  },
   render: Function as renderFunc,
   lazyLoad: Function as PropType<(node: RequiredTreeNodeOptions, callback: (children: TreeNodeOptions[]) => void) => void>
 })
 
-type EventType<T> = PropType<(arg: T) => void>
+type TreeEventType<T> = PropType<(arg: T) => void>
 
 
 const TreeNodeProps = () => ({
@@ -37,9 +49,18 @@ const TreeNodeProps = () => ({
     type: Object as PropType<RequiredTreeNodeOptions>,
     required: true,
   },
+  showCheckBox: {
+    type: Boolean,
+    default: false
+  },
+  checkStrictly: {
+    type: Boolean,
+    default: false
+  },
+  onCheckChange: Function as TreeEventType<[boolean, RequiredTreeNodeOptions]>,
   render: Function as renderFunc,
-  onChildExpand: Function as EventType<RequiredTreeNodeOptions>,
-  onSelectChange: Function as EventType<RequiredTreeNodeOptions>,
+  onChildExpand: Function as TreeEventType<RequiredTreeNodeOptions>,
+  onSelectChange: Function as TreeEventType<RequiredTreeNodeOptions>,
 })
 
 
@@ -55,4 +76,4 @@ const renderNodeProps = () => ({
 })
 
 
-export { renderNodeProps, TreeNodeProps, TreeNodeOptions, TreeProps, RequiredTreeNodeOptions }
+export { TreeEventType, renderNodeProps, TreeNodeProps, TreeNodeOptions, TreeProps, RequiredTreeNodeOptions }

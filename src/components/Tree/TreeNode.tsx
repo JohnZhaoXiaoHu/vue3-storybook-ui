@@ -1,5 +1,6 @@
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
 import { TreeNodeProps } from './types';
+import AfCheckbox from '../Checkbox';
 const props = TreeNodeProps();
 import './iconfont.css';
 import './index.scss';
@@ -8,13 +9,27 @@ import RenderNode from './renderNode';
 export default defineComponent({
   name: 'TreeNode',
   props: props,
-  emits: ['child-expand', 'select-change'],
+  emits: ['child-expand', 'select-change', 'check-change'],
   components: {
     RenderNode,
+    AfCheckbox,
   },
   setup(props, { emit }) {
     return () => {
       const { node } = props;
+      const isHalfChecked = computed(() => {
+        let res = false;
+
+        if (!props.checkStrictly && node?.children) {
+          const checkedChild = node.children.filter((item) => item.checked);
+
+          res =
+            checkedChild.length > 0 &&
+            checkedChild.length < node.children.length;
+        }
+
+        return res;
+      });
 
       const handleIconClick = (e: MouseEvent) => {
         e.stopPropagation();
@@ -38,9 +53,6 @@ export default defineComponent({
           </div>
         );
       };
-      // <i class="iconfont iconExpand" />
-
-      console.log('props.node.disabled', props.node?.disabled);
 
       const classes = computed(() => {
         return {
@@ -56,16 +68,35 @@ export default defineComponent({
         emit('select-change', props.node);
       };
 
+      const handleCheckChange = (check: boolean) => {
+        emit('check-change', [check, props.node]);
+      };
       const renderContent = (): JSX.Element => {
         return (
           <div class="node-content">
-            {props.render ? (
-              <RenderNode render={props.render} node={props.node}></RenderNode>
+            {props.showCheckBox ? (
+              <AfCheckbox
+                disabled={node?.disabled}
+                halfChecked={isHalfChecked.value}
+                modelValue={props.node?.checked}
+                onChange={handleCheckChange}
+              >
+                {' '}
+                {renderSameContent()}
+              </AfCheckbox>
             ) : (
-              <div class={classes.value} onClick={handleSelect}>
-                {node!.name}
-              </div>
+              renderSameContent()
             )}
+          </div>
+        );
+      };
+
+      const renderSameContent = (): JSX.Element => {
+        return props.render ? (
+          <RenderNode render={props.render} node={props.node}></RenderNode>
+        ) : (
+          <div class={classes.value} onClick={handleSelect}>
+            {node!.name}
           </div>
         );
       };

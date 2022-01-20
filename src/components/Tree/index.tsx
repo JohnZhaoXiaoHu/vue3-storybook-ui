@@ -3,6 +3,7 @@ import { RequiredTreeNodeOptions, TreeNodeOptions, TreeProps } from './types';
 import TreeNode from './TreeNode';
 import './index.scss';
 import { cloneDeep } from 'lodash';
+import { updateDownWards, updateUpWards } from './utils';
 
 const props = TreeProps();
 export default defineComponent({
@@ -11,7 +12,7 @@ export default defineComponent({
   components: {
     TreeNode,
   },
-  setup(props, { emit }) {
+  setup(props, { emit, expose }) {
     const flatList = ref<RequiredTreeNodeOptions[]>([]);
     const seletKey = ref('');
 
@@ -165,6 +166,26 @@ export default defineComponent({
       }
     };
 
+    const handleCheckChange = ([checked, node]: [
+      boolean,
+      RequiredTreeNodeOptions,
+    ]) => {
+      node.checked = checked;
+
+      if (!props.checkStrictly) {
+        // 向下递归更新子组件check状态
+        updateDownWards(node.children as RequiredTreeNodeOptions[], checked);
+
+        // 向上递归更新父节点
+        updateUpWards(node, flatList.value);
+      }
+    };
+
+    expose({
+      getSelectNode: (): RequiredTreeNodeOptions | undefined => {
+        return flatList.value.find((item) => item.selected);
+      },
+    });
     return () => {
       const renderNodes = (): JSX.Element[] => {
         return flatList.value.map((node: RequiredTreeNodeOptions) => {
@@ -174,6 +195,8 @@ export default defineComponent({
               onSelectChange={handSelectChange}
               onChildExpand={handleExpand}
               render={props.render}
+              showCheckBox={props.showCheckBox}
+              onCheckChange={handleCheckChange}
             ></TreeNode>
           );
         });
