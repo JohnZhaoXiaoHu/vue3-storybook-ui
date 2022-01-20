@@ -13,6 +13,7 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     const flatList = ref<RequiredTreeNodeOptions[]>([]);
+    const seletKey = ref('');
 
     const flattenData = (
       source: TreeNodeOptions[],
@@ -61,8 +62,11 @@ export default defineComponent({
       },
     );
 
-    const expandNode = (node: RequiredTreeNodeOptions) => {
-      const deepChildren = cloneDeep(node.children);
+    const expandNode = (
+      node: RequiredTreeNodeOptions,
+      children?: TreeNodeOptions[],
+    ) => {
+      const deepChildren = children ? children : cloneDeep(node.children);
 
       node.children = deepChildren.map((item) => {
         return {
@@ -90,20 +94,88 @@ export default defineComponent({
       );
     };
 
+    const collapseNode = (node: RequiredTreeNodeOptions) => {
+      const deleleKeys: string[] = [];
+
+      const dp = (currtNode: RequiredTreeNodeOptions) => {
+        if (currtNode.children.length) {
+          node.children.forEach((item) => {
+            deleleKeys.push(item.nodeKey);
+
+            if (item.expanded) {
+              item.expanded = false;
+
+              dp(item as RequiredTreeNodeOptions);
+            }
+          });
+        }
+      };
+
+      dp(node);
+
+      if (deleleKeys.length) {
+        // 只要是deleteKeys数组里面有的我们都不要
+        flatList.value = flatList.value.filter(
+          (item) => !deleleKeys.includes(item.nodeKey),
+        );
+      }
+    };
+
     const handleExpand = (node: RequiredTreeNodeOptions) => {
       node.expanded = !node.expanded;
 
       if (node.expanded) {
+        // 展开树的子节点
         if (node.children.length) {
           expandNode(node);
+        } else {
+          if (props.lazyLoad) {
+            node.loading = true;
+            props.lazyLoad(node, (children: TreeNodeOptions[]) => {
+              if (children.length) {
+                expandNode(node, children);
+                node.loading = false;
+              }
+            });
+          }
         }
+      } else {
+        // 收起树的子节点
+
+        collapseNode(node);
+      }
+    };
+
+    const handSelectChange = (node: RequiredTreeNodeOptions) => {
+      node.selected = !node.selected;
+
+      if (seletKey.value === node.nodeKey) {
+        seletKey.value = '';
+      } else {
+        // 点击其他节点
+        const preIndex = flatList.value.findIndex(
+          (item) => item.nodeKey === seletKey.value,
+        );
+
+        if (preIndex > -1) {
+          flatList.value[preIndex].selected = false;
+        }
+
+        seletKey.value = node.nodeKey;
       }
     };
 
     return () => {
       const renderNodes = (): JSX.Element[] => {
         return flatList.value.map((node: RequiredTreeNodeOptions) => {
-          return <TreeNode node={node} onChildExpand={handleExpand}></TreeNode>;
+          return (
+            <TreeNode
+              node={node}
+              onSelectChange={handSelectChange}
+              onChildExpand={handleExpand}
+              render={props.render}
+            ></TreeNode>
+          );
         });
       };
 
