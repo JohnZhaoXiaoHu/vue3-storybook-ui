@@ -9,7 +9,12 @@ import {
 import TreeNode from './TreeNode';
 import './index.scss';
 import { cloneDeep } from 'lodash';
-import { updateDownWards, updateUpWards } from './utils';
+import {
+  updateDownWards,
+  updateUpWards,
+  flattenData,
+  expandNode,
+} from './utils';
 
 const props = TreeProps();
 export default defineComponent({
@@ -22,45 +27,6 @@ export default defineComponent({
     const flatList = ref<RequiredTreeNodeOptions[]>([]);
     const seletKey = ref('');
 
-    const flattenData = (
-      source: TreeNodeOptions[],
-    ): RequiredTreeNodeOptions[] => {
-      const res: RequiredTreeNodeOptions[] = [];
-
-      const dp = (
-        list: TreeNodeOptions[],
-        level = 0,
-        parent: RequiredTreeNodeOptions | null = null,
-      ) => {
-        return list.map((item) => {
-          const node: RequiredTreeNodeOptions = {
-            ...item,
-            level,
-            children: item.children || [],
-            loading: item.loading || false,
-            hasChildren: item.hasChildren || false,
-            selected: item.selected || false,
-            checked: item.checked || false,
-            expanded: item.expanded || false,
-            parentKey: parent?.nodeKey || null,
-            disabled: item.disabled || false,
-          };
-
-          res.push(node);
-
-          if (node.children.length && item.expanded) {
-            node.children = dp(node.children, level + 1, node);
-          }
-          return node;
-        });
-      };
-      if (source.length) {
-        dp(source);
-      }
-
-      return res;
-    };
-
     watch(
       () => props.source,
       (newValue) => {
@@ -68,38 +34,6 @@ export default defineComponent({
         console.log(flatList.value);
       },
     );
-
-    const expandNode = (
-      node: RequiredTreeNodeOptions,
-      children?: TreeNodeOptions[],
-    ) => {
-      const deepChildren = children ? children : cloneDeep(node.children);
-
-      node.children = deepChildren.map((item) => {
-        return {
-          ...item,
-          level: item.level || node.level + 1,
-          children: item.children || [],
-          loading: item.loading || false,
-          hasChildren: item.hasChildren || false,
-          selected: item.selected || false,
-          checked: item.checked || false,
-          expanded: item.expanded || false,
-          parentKey: node.nodeKey || null,
-          disabled: item.disabled || false,
-        };
-      });
-
-      const index = flatList.value.findIndex(
-        (item) => node.nodeKey === item.nodeKey,
-      );
-
-      flatList.value.splice(
-        index + 1,
-        0,
-        ...(node.children as RequiredTreeNodeOptions[]),
-      );
-    };
 
     const collapseNode = (node: RequiredTreeNodeOptions) => {
       const deleleKeys: string[] = [];
@@ -134,13 +68,13 @@ export default defineComponent({
       if (node.expanded) {
         // 展开树的子节点
         if (node.children.length) {
-          expandNode(node);
+          expandNode(node, flatList.value);
         } else {
           if (props.lazyLoad) {
             node.loading = true;
             props.lazyLoad(node, (children: TreeNodeOptions[]) => {
               if (children.length) {
-                expandNode(node, children);
+                expandNode(node, flatList.value, children);
                 node.loading = false;
               }
             });
