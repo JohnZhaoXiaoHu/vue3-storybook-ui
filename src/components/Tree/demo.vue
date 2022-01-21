@@ -6,7 +6,7 @@
     <af-tree
       :source="source"
       :lazyLoad="lazyLoad"
-      show-check-box
+      showCheckBox
       ref="tree"
     ></af-tree>
   </div>

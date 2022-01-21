@@ -31,8 +31,9 @@ export default defineComponent({
       () => props.source,
       (newValue) => {
         flatList.value = flattenData(newValue as TreeNodeOptions[]);
-        console.log(flatList.value);
+        console.log('source', flatList.value);
       },
+      { immediate: true },
     );
 
     const collapseNode = (node: RequiredTreeNodeOptions) => {
