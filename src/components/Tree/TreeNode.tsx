@@ -14,22 +14,27 @@ export default defineComponent({
     RenderNode,
     AfCheckbox,
   },
-  setup(props, { emit }) {
+  setup(props, { emit, expose }) {
+    const isHalfChecked = computed(() => {
+      let res = false;
+
+      if (!props.checkStrictly && props.node?.children) {
+        const checkedChild = props.node.children.filter((item) => item.checked);
+
+        res =
+          checkedChild.length > 0 &&
+          checkedChild.length < props.node.children.length;
+      }
+
+      return res;
+    });
+
+    expose({
+      node: props.node,
+      isHalfChecked: () => isHalfChecked.value,
+    });
     return () => {
       const { node } = props;
-      const isHalfChecked = computed(() => {
-        let res = false;
-
-        if (!props.checkStrictly && node?.children) {
-          const checkedChild = node.children.filter((item) => item.checked);
-
-          res =
-            checkedChild.length > 0 &&
-            checkedChild.length < node.children.length;
-        }
-
-        return res;
-      });
 
       const handleIconClick = (e: MouseEvent) => {
         e.stopPropagation();

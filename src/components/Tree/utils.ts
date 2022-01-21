@@ -1,5 +1,9 @@
 import { RequiredTreeNodeOptions } from './types';
 
+
+
+
+
 export function updateDownWards(children: RequiredTreeNodeOptions[], checked: boolean) {
 
 
@@ -31,7 +35,7 @@ export function updateUpWards(node: RequiredTreeNodeOptions, flatList: RequiredT
         const parentAllChecked = !parentNode.children.some(item => !item.checked)
 
 
-        if (parentAllChecked) {
+        if (parentAllChecked !== parentNode.checked) {
           parentNode.checked = parentAllChecked
           update(parentNode)
         }

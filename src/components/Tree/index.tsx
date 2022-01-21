@@ -1,5 +1,11 @@
 import { defineComponent, ref, watch } from 'vue';
-import { RequiredTreeNodeOptions, TreeNodeOptions, TreeProps } from './types';
+import {
+  RequiredTreeNodeOptions,
+  TreeInstace,
+  TreeNodeInstance,
+  TreeNodeOptions,
+  TreeProps,
+} from './types';
 import TreeNode from './TreeNode';
 import './index.scss';
 import { cloneDeep } from 'lodash';
@@ -180,26 +186,44 @@ export default defineComponent({
         updateUpWards(node, flatList.value);
       }
     };
-
+    const nodeRefs = ref<TreeNodeInstance[]>([]);
     expose({
       getSelectNode: (): RequiredTreeNodeOptions | undefined => {
         return flatList.value.find((item) => item.selected);
       },
+      getCheckedNodes: (): RequiredTreeNodeOptions[] | undefined => {
+        return flatList.value.filter((item) => item.checked);
+      },
+      getHalfCheckedNodes: (): RequiredTreeNodeOptions[] | undefined => {
+        return nodeRefs.value
+          .filter((item) => item.isHalfChecked())
+          .map((item) => item.node);
+      },
     });
+
+    const setNodeRefs = (index: number, node: TreeNodeInstance) => {
+      if (node) {
+        nodeRefs.value[index] = node;
+      }
+    };
+
     return () => {
       const renderNodes = (): JSX.Element[] => {
-        return flatList.value.map((node: RequiredTreeNodeOptions) => {
-          return (
-            <TreeNode
-              node={node}
-              onSelectChange={handSelectChange}
-              onChildExpand={handleExpand}
-              render={props.render}
-              showCheckBox={props.showCheckBox}
-              onCheckChange={handleCheckChange}
-            ></TreeNode>
-          );
-        });
+        return flatList.value.map(
+          (node: RequiredTreeNodeOptions, index: number) => {
+            return (
+              <TreeNode
+                node={node}
+                onSelectChange={handSelectChange}
+                onChildExpand={handleExpand}
+                render={props.render}
+                showCheckBox={props.showCheckBox}
+                onCheckChange={handleCheckChange}
+                ref={setNodeRefs.bind(null, index) as any}
+              ></TreeNode>
+            );
+          },
+        );
       };
 
       return (

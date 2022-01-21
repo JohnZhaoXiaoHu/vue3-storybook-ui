@@ -16,9 +16,15 @@ interface TreeNodeOptions {
 }
 
 export interface TreeInstace {
-  getSelectNode: () => RequiredTreeNodeOptions | undefined
+  getSelectNode: () => RequiredTreeNodeOptions | undefined,
+  getCheckedNodes: () => RequiredTreeNodeOptions[] | undefined,
+  getHalfCheckedNodes: () => RequiredTreeNodeOptions[] | undefined,
 }
 
+export interface TreeNodeInstance {
+  node: RequiredTreeNodeOptions;
+  isHalfChecked: () => boolean
+}
 type RequiredTreeNodeOptions = Required<TreeNodeOptions>
 
 

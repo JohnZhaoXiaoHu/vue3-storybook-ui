@@ -1,6 +1,8 @@
 <template>
   <div class="main">
     <button @click="selectNode">获取选中节点</button>
+    <button @click="checkedNodes">获取勾选节点</button>
+    <button @click="halfCheckedNodes">获取半勾选节点</button>
     <af-tree
       :source="source"
       :lazyLoad="lazyLoad"
@@ -105,11 +107,25 @@ export default defineComponent({
       console.log('selectednode', selectedNode);
     };
 
+    const checkedNodes = () => {
+      console.log('checkedFunc');
+      const selectedNode = tree.value!.getCheckedNodes();
+      console.log('checkednode', selectedNode);
+    };
+
+    const halfCheckedNodes = () => {
+      console.log('checkedFunc');
+      const halfCheckedNodes = tree.value!.getHalfCheckedNodes();
+      console.log('halfCheckedNodes', halfCheckedNodes);
+    };
+
     return {
       source,
       lazyLoad,
       renderFunc,
       selectNode,
+      checkedNodes,
+      halfCheckedNodes,
       tree,
     };
   },
