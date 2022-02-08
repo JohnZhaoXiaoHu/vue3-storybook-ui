@@ -1,6 +1,6 @@
 import { computed, defineComponent, ref } from 'vue';
 import { TreeNodeProps } from './types';
-import AfCheckbox from '../Checkbox';
+import AfCheckbox from '../Checkbox/AfCheckbox';
 const props = TreeNodeProps();
 import './iconfont.css';
 import './index.scss';

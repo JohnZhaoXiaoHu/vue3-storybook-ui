@@ -1,4 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
+import libUses from './components'
 
-createApp(App).mount('#app')
+const app = createApp(App)
+
+app.use(libUses).mount('#app')
