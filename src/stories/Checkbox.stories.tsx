@@ -1,6 +1,6 @@
 // import AfButton from './Button.vue';
 import { ref } from 'vue';
-import AfCheckBox from '../components/Checkbox';
+import AfCheckBox from '../components/Checkbox/AfCheckbox';
 
 // import { withInfo } from '@storybook/addon-info';
 // import { addDecorator } from '@storybook/vue3';
